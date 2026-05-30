@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog | WesternHub News</title>
+    <link rel="icon" type="image/png" href="image/favicon.png">
+    <link rel="stylesheet" href="style.css">
+    <!-- Auth removed: no redirect required -->
+</head>
+<body>
+    <header>
+        <div class="logo">WESTERN<span>HUB</span></div>
+        <nav class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="trailers.html">Trailers</a>
+            <a href="blog.html">Blog</a>
+            <a href="downloads.html">Downloads</a>
+            <a href="admin.html" id="navAdmin" style="display:none;">Dashboard</a>
+            <a href="#" id="navLogout" style="display:none;" onclick="logout()">Logout</a>
+        </nav>
+    </header>
+    <script>
+        if (sessionStorage.getItem('adminLoggedIn') === 'true') {
+            document.getElementById('navAdmin').style.display = 'inline';
+        }
+        document.getElementById('navLogout').style.display = 'inline';
+        document.getElementById('navLogout').textContent = 'Logout (' + (sessionStorage.getItem('userName') || 'User') + ')';
+        function logout() {
+            sessionStorage.clear();
+            window.location.replace('index.html');
+        }
+    </script>
+
+    <div class="container">
+        <section class="hero">
+            <h1>LATEST <span>NEWS</span></h1>
+            <p>Stay updated with the hottest rumors, official announcements, and behind-the-scenes insights from the world of entertainment.</p>
+        </section>
+
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+            <button class="filter-btn active" onclick="filterBlogs('All', this)">All News</button>
+            <button class="filter-btn" onclick="filterBlogs('Movies News', this)">Movies</button>
+            <button class="filter-btn" onclick="filterBlogs('TV News', this)">TV Shows</button>
+            <button class="filter-btn" onclick="filterBlogs('Other News', this)">Other</button>
+        </div>
+
+        <!-- Blogs Grid -->
+        <section id="blogs" class="trailer-grid">
+            <!-- Blogs injected via JS -->
+        </section>
+    </div>
+
+    <!-- Modal for Blog Details -->
+    <div id="blogModal" class="modal">
+        <div class="blog-modal-content">
+            <span class="modal-close" onclick="closeBlogModal()" style="top: 20px; right: 25px; z-index: 100;">&times;</span>
+            
+            <div class="blog-modal-header">
+                <img src="" alt="Thumbnail" id="modalBlogImg">
+            </div>
+
+            <div class="blog-modal-body">
+                <div class="card-tag" id="modalBlogTag" style="margin-bottom: 1rem;">News</div>
+                <h2 class="blog-modal-title" id="modalBlogTitle">Blog Title</h2>
+                <div class="blog-modal-content-text" id="modalBlogFullDesc"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Legal Modal -->
+    <div id="legalModal" class="modal">
+        <div class="legal-modal-content">
+            <span class="modal-close" onclick="closeLegal()">&times;</span>
+            <div id="legalModalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        const legalContent = {
+            privacy: {
+                title: 'Privacy Policy',
+                body: '<p>Last updated: 2026</p><p>WesternHub respects your privacy. We do not collect, store, or share any personal data. All information entered on this site is stored locally in your browser and is never transmitted to any server.</p><p>We use localStorage to remember your preferences and saved content. This data never leaves your device.</p><p>If you have any questions, please contact us through the provided channels.</p>'
+            },
+            terms: {
+                title: 'Terms of Service',
+                body: '<p>Last updated: 2026</p><p>By using WesternHub, you agree to the following terms:</p><ul style="color: var(--text-gray); line-height: 2; padding-left: 1.5rem;"><li>This site is for personal, non-commercial use only.</li><li>All content is provided as-is without warranties.</li><li>You are responsible for any content you add.</li><li>We reserve the right to update these terms at any time.</li></ul>'
+            },
+            contact: {
+                title: 'Contact Us',
+                body: '<p>Join our Discord server to connect with the community!</p><p style="margin-top: 1.5rem;"><a href="#" style="display: inline-block; background: var(--primary-red); color: white; padding: 1rem 2.5rem; border-radius: 8px; text-decoration: none; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; transition: var(--transition);">Join Discord</a></p>'
+            }
+        };
+
+        function openLegal(type) {
+            const content = legalContent[type];
+            if (!content) return;
+            document.getElementById('legalModalBody').innerHTML = '<h2 style="color: var(--primary-red); margin-bottom: 1.5rem;">' + content.title + '</h2>' + content.body;
+            document.getElementById('legalModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLegal() {
+            document.getElementById('legalModal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        document.getElementById('legalModal').addEventListener('click', function(e) {
+            if (e.target === this) closeLegal();
+        });
+    </script>
+
+     <script src="api.js"></script>
+    <script src="blog.js"></script>
+     <footer>
+         <div class="footer-content">
+             <div class="footer-brand">
+                 <div class="footer-logo">WESTERN<span>HUB</span></div>
+                 <p>Your ultimate cinematic hub. Discover the latest trailers, exclusive news, and upcoming blockbusters.</p>
+             </div>
+             <div class="footer-col">
+                 <h4>Quick Links</h4>
+                 <a href="index.html">Home</a>
+                 <a href="trailers.html">Trailers</a>
+                 <a href="blog.html">Blog</a>
+                 <a href="downloads.html">Downloads</a>
+                 <a href="admin.html">Admin</a>
+             </div>
+             <div class="footer-col">
+                 <h4>Legal</h4>
+                  <a href="#" onclick="openLegal('privacy'); return false;">Privacy Policy</a>
+                  <a href="#" onclick="openLegal('terms'); return false;">Terms of Service</a>
+                  <a href="#" onclick="openLegal('contact'); return false;">Contact Us</a>
+              </div>
+             <div class="footer-col">
+                 <h4>Follow Us</h4>
+                 <div class="footer-social">
+                     <a href="#" title="Twitch">📺</a>
+                     <a href="#" title="Discord">💬</a>
+                     <a href="#" title="YouTube">▶</a>
+                 </div>
+             </div>
+         </div>
+         <div class="footer-bottom">
+             <p>&copy; 2026 WesternHub. All rights reserved.</p>
+         </div>
+     </footer>
+</body>
+</html>

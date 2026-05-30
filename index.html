@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WesternHub | Cinematic Gateway</title>
+    <link rel="icon" type="image/png" href="image/favicon.png">
+    <link rel="stylesheet" href="style.css">
+    <!-- Auth removed: no redirect required -->
+</head>
+<body>
+    <header>
+        <div class="logo">WESTERN<span>HUB</span></div>
+        <nav class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="trailers.html">Trailers</a>
+            <a href="blog.html">Blog</a>
+            <a href="downloads.html">Downloads</a>
+            <a href="admin.html" id="navAdmin" style="display:none;">Dashboard</a>
+            <a href="#" id="navLogout" style="display:none;" onclick="logout()">Logout</a>
+        </nav>
+    </header>
+    <script>
+        if (sessionStorage.getItem('adminLoggedIn') === 'true') {
+            document.getElementById('navAdmin').style.display = 'inline';
+        }
+        document.getElementById('navLogout').style.display = 'inline';
+        document.getElementById('navLogout').textContent = 'Logout (' + (sessionStorage.getItem('userName') || 'User') + ')';
+        function logout() {
+            sessionStorage.clear();
+            window.location.replace('index.html');
+        }
+    </script>
+
+    <div class="container">
+        <!-- Main Landing Hero -->
+        <section class="hero" style="height: 50vh; display: flex; flex-direction: column; justify-content: center; text-align: center;">
+            <h1 style="font-size: 3rem; letter-spacing: -1px;">YOUR ULTIMATE <br><span>CINEMATIC HUB</span></h1>
+            <p style="max-width: 700px; margin: 1.2rem auto; font-size: 1.1rem; color: var(--text-gray);">
+                Step into the world of entertainment. Discover the latest trailers, exclusive news, and upcoming blockbusters all in one premium dashboard.
+            </p>
+            <div style="display: flex; gap: 15px; justify-content: center; margin-top: 2rem;">
+                <a href="trailers.html" class="btn" style="padding: 1rem 2.5rem; font-size: 0.95rem; width: auto;">Explore Trailers</a>
+                <a href="blog.html" class="btn" style="padding: 1rem 2.5rem; font-size: 0.95rem; width: auto; background: transparent; border: 1px solid var(--primary-red);">Latest News</a>
+            </div>
+        </section>
+
+        <!-- Feature Section -->
+        <section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 3rem; margin-top: 5rem; padding-bottom: 5rem;">
+            <div style="background: var(--bg-card); padding: 3rem; border-radius: 30px; border: 1px solid var(--glass-border); text-align: center;">
+                <div style="font-size: 3rem; color: var(--primary-red); margin-bottom: 1.5rem;">🎬</div>
+                <h3>HD Trailers</h3>
+                <p style="color: var(--text-gray); margin-top: 1rem;">Watch high-quality trailers from the biggest studios in the world.</p>
+            </div>
+            <div style="background: var(--bg-card); padding: 3rem; border-radius: 30px; border: 1px solid var(--glass-border); text-align: center;">
+                <div style="font-size: 3rem; color: var(--primary-red); margin-bottom: 1.5rem;">📰</div>
+                <h3>Fresh News</h3>
+                <p style="color: var(--text-gray); margin-top: 1rem;">Stay updated with the latest casting news and production updates.</p>
+            </div>
+            <div style="background: var(--bg-card); padding: 3rem; border-radius: 30px; border: 1px solid var(--glass-border); text-align: center;">
+                <div style="font-size: 3rem; color: var(--primary-red); margin-bottom: 1.5rem;">💎</div>
+                <h3>Premium Experience</h3>
+                <p style="color: var(--text-gray); margin-top: 1rem;">Enjoy a clean, fast, and cinematic interface designed for fans.</p>
+            </div>
+        </section>
+    </div>
+
+     <!-- Legal Modal -->
+    <div id="legalModal" class="modal">
+        <div class="legal-modal-content">
+            <span class="modal-close" onclick="closeLegal()">&times;</span>
+            <div id="legalModalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        const legalContent = {
+            privacy: {
+                title: 'Privacy Policy',
+                body: '<p>Last updated: 2026</p><p>WesternHub respects your privacy. We do not collect, store, or share any personal data. All information entered on this site is stored locally in your browser and is never transmitted to any server.</p><p>We use localStorage to remember your preferences and saved content. This data never leaves your device.</p><p>If you have any questions, please contact us through the provided channels.</p>'
+            },
+            terms: {
+                title: 'Terms of Service',
+                body: '<p>Last updated: 2026</p><p>By using WesternHub, you agree to the following terms:</p><ul style="color: var(--text-gray); line-height: 2; padding-left: 1.5rem;"><li>This site is for personal, non-commercial use only.</li><li>All content is provided as-is without warranties.</li><li>You are responsible for any content you add.</li><li>We reserve the right to update these terms at any time.</li></ul>'
+            },
+            contact: {
+                title: 'Contact Us',
+                body: '<p>Join our Discord server to connect with the community!</p><p style="margin-top: 1.5rem;"><a href="#" style="display: inline-block; background: var(--primary-red); color: white; padding: 1rem 2.5rem; border-radius: 8px; text-decoration: none; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; transition: var(--transition);">Join Discord</a></p>'
+            }
+        };
+
+        function openLegal(type) {
+            const content = legalContent[type];
+            if (!content) return;
+            document.getElementById('legalModalBody').innerHTML = '<h2 style="color: var(--primary-red); margin-bottom: 1.5rem;">' + content.title + '</h2>' + content.body;
+            document.getElementById('legalModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLegal() {
+            document.getElementById('legalModal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        document.getElementById('legalModal').addEventListener('click', function(e) {
+            if (e.target === this) closeLegal();
+        });
+    </script>
+
+     <script src="api.js"></script>
+    <script src="app.js"></script>
+     <footer>
+         <div class="footer-content">
+             <div class="footer-brand">
+                 <div class="footer-logo">WESTERN<span>HUB</span></div>
+                 <p>Your ultimate cinematic hub. Discover the latest trailers, exclusive news, and upcoming blockbusters.</p>
+             </div>
+             <div class="footer-col">
+                 <h4>Quick Links</h4>
+                 <a href="index.html">Home</a>
+                 <a href="trailers.html">Trailers</a>
+                 <a href="blog.html">Blog</a>
+                 <a href="downloads.html">Downloads</a>
+                 <a href="admin.html">Admin</a>
+             </div>
+             <div class="footer-col">
+                 <h4>Legal</h4>
+                  <a href="#" onclick="openLegal('privacy'); return false;">Privacy Policy</a>
+                  <a href="#" onclick="openLegal('terms'); return false;">Terms of Service</a>
+                  <a href="#" onclick="openLegal('contact'); return false;">Contact Us</a>
+              </div>
+             <div class="footer-col">
+                 <h4>Follow Us</h4>
+                 <div class="footer-social">
+                     <a href="#" title="Twitch">📺</a>
+                     <a href="#" title="Discord">💬</a>
+                     <a href="#" title="YouTube">▶</a>
+                 </div>
+             </div>
+         </div>
+         <div class="footer-bottom">
+             <p>&copy; 2026 WesternHub. All rights reserved.</p>
+         </div>
+     </footer>
+</body>
+</html>
