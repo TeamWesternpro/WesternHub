@@ -45,7 +45,12 @@
     <div id="adminApp" style="display:none;">
     <header>
         <div class="logo">ADMIN<span>DASHBOARD</span></div>
-        <nav class="nav-links">
+        <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <nav class="nav-links" id="navLinks">
             <a href="index.html">Home</a>
             <a href="trailers.html">Trailers</a>
             <a href="blog.html">Blog</a>
@@ -390,16 +395,35 @@
                 document.getElementById('adminLoginModal').classList.remove('active');
                 document.body.style.overflow = '';
                 document.getElementById('adminApp').style.display = '';
+                initHamburger();
             } else {
                 msg.style.display = 'block';
                 msg.textContent = 'Invalid credentials';
             }
         });
 
+        function initHamburger() {
+            const hamburger = document.getElementById('hamburger');
+            const navLinks = document.getElementById('navLinks');
+            if (hamburger && navLinks) {
+                hamburger.addEventListener('click', () => {
+                    hamburger.classList.toggle('active');
+                    navLinks.classList.toggle('active');
+                });
+                navLinks.querySelectorAll('a').forEach(link => {
+                    link.addEventListener('click', () => {
+                        hamburger.classList.remove('active');
+                        navLinks.classList.remove('active');
+                    });
+                });
+            }
+        }
+
         // On page load, ensure admin app visibility or show login
         window.addEventListener('load', function() {
             if (sessionStorage.getItem('adminLoggedIn') === 'true') {
                 document.getElementById('adminApp').style.display = '';
+                initHamburger();
             } else {
                 ensureAdminAuth();
             }
