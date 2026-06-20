@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trailers | WesternHub</title>
+    <link rel="icon" type="image/png" href="image/favicon.png">
+    <link rel="stylesheet" href="style.css">
+    <!-- Auth removed: no redirect required -->
+</head>
+<body>
+    <header>
+        <div class="logo">WESTERN<span>HUB</span></div>
+        <nav class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="trailers.html">Trailers</a>
+            <a href="blog.html">Blog</a>
+            <a href="downloads.html">Downloads</a>
+            <a href="admin.html" id="navAdmin">Dashboard</a>
+            <a href="#" id="navLogout" style="display:none;" onclick="logout()">Logout</a>
+        </nav>
+    </header>
+    <script>
+        if (sessionStorage.getItem('adminLoggedIn') === 'true') {
+            document.getElementById('navLogout').style.display = 'inline';
+            document.getElementById('navLogout').textContent = 'Logout (' + (sessionStorage.getItem('userName') || 'User') + ')';
+        }
+        function logout() {
+            sessionStorage.clear();
+            window.location.replace('index.html');
+        }
+    </script>
+
+    <div class="container">
+        <!-- Hero Section -->
+        <section class="hero">
+            <h1>UNLIMITED <span>TRAILERS</span></h1>
+            <p>Explore the latest cinematic masterpieces, trending TV series, and exclusive world premieres all in one place.</p>
+        </section>
+
+        <!-- Category Filters -->
+        <div class="filter-bar">
+            <button class="filter-btn active" onclick="filterTrailers('All', this)">All</button>
+            <button class="filter-btn" onclick="filterTrailers('Movie', this)">Movies</button>
+            <button class="filter-btn" onclick="filterTrailers('TV', this)">TV Shows</button>
+        </div>
+
+        <!-- Trailers Grid -->
+        <section id="trailers" class="trailer-grid">
+            <!-- Cards will be injected here via JavaScript -->
+        </section>
+    </div>
+
+    <!-- Modal for Trailer Details -->
+    <div id="trailerModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <div class="modal-img-container">
+                <img src="" alt="Poster" id="modalImg" class="modal-img">
+            </div>
+            <div class="modal-body">
+                <div class="card-tag" id="modalTag">Category</div>
+                <h2 class="modal-title" id="modalTitle">Trailer Title</h2>
+                <p class="modal-desc" id="modalDesc">Description goes here...</p>
+                
+                <div class="modal-info">
+                    <div class="modal-info-item">
+                        <span class="info-label">Trailer Release</span>
+                        <span class="info-value" id="modalDateTrailer">Date</span>
+                    </div>
+                    <div class="modal-info-item">
+                        <span class="info-label">Production Release</span>
+                        <span class="info-value" id="modalDateMovie">Date</span>
+                    </div>
+                    <div id="modalNetworkContainer" class="modal-info-item hidden">
+                        <span class="info-label">Network</span>
+                        <span class="info-value" id="modalNetwork">Network Name</span>
+                    </div>
+                </div>
+
+                <a href="#" id="watchBtn" class="btn" target="_blank" style="margin-top: 2rem; display: inline-flex; align-items: center; justify-content: center; gap: 10px;">
+                    <span>Watch Trailer</span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Legal Modal -->
+    <div id="legalModal" class="modal">
+        <div class="legal-modal-content">
+            <span class="modal-close" onclick="closeLegal()">&times;</span>
+            <div id="legalModalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        const legalContent = {
+            privacy: {
+                title: 'Privacy Policy',
+                body: '<p><em>Last updated: June 2026</em></p>' +
+                    '<h3 style="color: var(--text-white); margin: 1.5rem 0 0.8rem; font-size: 1.1rem;">1. Introduction</h3>' +
+                    '<p>WesternHub ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we handle information when you use our website and services. By accessing WesternHub, you agree to the practices described in this policy.</p>' +
+                    '<h3 style="color: var(--text-white); margin: 1.5rem 0 0.8rem; font-size: 1.1rem;">2. Information We Collect</h3>' +
+                    '<p>WesternHub operates on a privacy-first model. We do not collect, store, or transmit any personally identifiable information (PII) to our servers. All data you enter on this site — including saved content, preferences, and settings — is stored locally in your web browser using localStorage and sessionStorage technologies.</p>' +
+                    '<h3 style="color: var(--text-white); margin: 1.5rem 0 0.8rem; font-size: 1.1rem;">3. How Your Data Is Used</h3>' +
+                    '<p>Since all data remains on your local device, we have no access to your personal content. Local browser data is used solely to maintain your session, remember your preferences, and provide the core functionality of the platform.</p>' +
+                    '<h3 style="color: var(--text-white); margin: 1.5rem 0 0.8rem; font-size: 1.1rem;">4. Third-Party Services</h3>' +
+                    '<p>WesternHub may embed content from third-party platforms such as YouTube. These services may collect usage data independently according to their own privacy policies. We encourage you to review the privacy policies of any third-party services you interact with through our platform.</p>' +
+                    '<h3 style="color: var(--text-white); margin: 1.5rem 0 0.8rem; font-size: 1.1rem;">5. Data Security</h3>' +
+                    '<p>We implement reasonable security measures to protect the integrity of our platform. However, since your data is stored locally on your device, you are responsible for maintaining the security of your own browser and device.</p>' +
+                    '<h3 style="color: var(--text-white); margin: 1.5rem 0 0.8rem; font-size: 1.1rem;">6. Changes to This Policy</h3>' +
+                    '<p>We reserve the right to update this Privacy Policy at any time. Changes will be reflected on this page with an updated revision date. Continued use of WesternHub after changes constitutes acceptance of the revised policy.</p>' +
+                    '<h3 style="color: var(--text-white); margin: 1.5rem 0 0.8rem; font-size: 1.1rem;">7. Contact</h3>' +
+                    '<p>If you have questions about this policy, please reach out via our Discord server or the Contact Us page.</p>'
+            },
+            terms: {
+                title: 'Terms of Service',
+                body: '<p><em>Last updated: June 2026</em></p>' +
+                    '<h3 style="color: var(--text-white); margin: 1.5rem 0 0.8rem; font-size: 1.1rem;">1. Acceptance of Terms</h3>' +
+                    '<p>By accessing and using WesternHub, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service. If you do not agree with any part of these terms, you must discontinue use of the platform immediately.</p>' +
+                    '<h3 style="color: var(--text-white); margin: 1.5rem 0 0.8rem; font-size: 1.1rem;">2. Description of Service</h3>' +
+                    '<p>WesternHub is an entertainment content aggregation platform that provides access to trailers, news articles, and downloadable resources. We reserve the right to modify, suspend, or discontinue any part of the service at our sole discretion and without prior notice.</p>' +
+                    '<h3 style="color: var(--text-white); margin: 1.5rem 0 0.8rem; font-size: 1.1rem;">3. User Responsibilities</h3>' +
+                    '<p>You are solely responsible for your activity on WesternHub. This includes any content you submit, save, or distribute through the platform. You agree not to use WesternHub for any unlawful purpose or in any manner that could damage, disable, or impair the service.</p>' +
+                    '<h3 style="color: var(--text-white); margin: 1.5rem 0 0.8rem; font-size: 1.1rem;">4. Intellectual Property</h3>' +
+                    '<p>All content displayed on WesternHub — including but not limited to trailers, images, logos, and written material — is the property of its respective owners and is protected by applicable intellectual property laws. You may not reproduce, distribute, or create derivative works without explicit permission.</p>' +
+                    '<h3 style="color: var(--text-white); margin: 1.5rem 0 0.8rem; font-size: 1.1rem;">5. Disclaimer of Warranties</h3>' +
+                    '<p>WesternHub is provided on an "as is" and "as available" basis. We make no warranties, expressed or implied, regarding the reliability, accuracy, or availability of the platform. Your use of the service is at your own risk.</p>' +
+                    '<h3 style="color: var(--text-white); margin: 1.5rem 0 0.8rem; font-size: 1.1rem;">6. Limitation of Liability</h3>' +
+                    '<p>To the fullest extent permitted by law, WesternHub and its operators shall not be held liable for any indirect, incidental, special, or consequential damages arising from your use of or inability to use the platform.</p>' +
+                    '<h3 style="color: var(--text-white); margin: 1.5rem 0 0.8rem; font-size: 1.1rem;">7. Termination</h3>' +
+                    '<p>We reserve the right to restrict or terminate your access to WesternHub at any time, without notice, for conduct that we believe violates these terms or is harmful to other users, us, or third parties.</p>' +
+                    '<h3 style="color: var(--text-white); margin: 1.5rem 0 0.8rem; font-size: 1.1rem;">8. Changes to Terms</h3>' +
+                    '<p>We may revise these Terms of Service at any time. Updated terms will be posted on this page with a revised date. Your continued use of WesternHub after any changes indicates your acceptance of the updated terms.</p>' +
+                    '<h3 style="color: var(--text-white); margin: 1.5rem 0 0.8rem; font-size: 1.1rem;">9. Contact</h3>' +
+                    '<p>For inquiries regarding these terms, please contact us through our Discord server or the Contact Us page.</p>'
+            },
+            contact: {
+                title: 'Contact Us',
+                body: '<p>Join our Discord server to connect with the community!</p><p style="margin-top: 1.5rem;"><a href="#" style="display: inline-block; background: var(--primary-red); color: white; padding: 1rem 2.5rem; border-radius: 8px; text-decoration: none; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; transition: var(--transition);">Join Discord</a></p>'
+            }
+        };
+
+        function openLegal(type) {
+            const content = legalContent[type];
+            if (!content) return;
+            document.getElementById('legalModalBody').innerHTML = '<h2 style="color: var(--primary-red); margin-bottom: 1.5rem;">' + content.title + '</h2>' + content.body;
+            document.getElementById('legalModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLegal() {
+            document.getElementById('legalModal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        document.getElementById('legalModal').addEventListener('click', function(e) {
+            if (e.target === this) closeLegal();
+        });
+    </script>
+
+     <script src="app.js"></script>
+     <footer>
+         <div class="footer-content">
+             <div class="footer-brand">
+                 <div class="footer-logo">WESTERN<span>HUB</span></div>
+                 <p>Your ultimate cinematic hub. Discover the latest trailers, exclusive news, and upcoming blockbusters.</p>
+             </div>
+             <div class="footer-col">
+                 <h4>Quick Links</h4>
+                 <a href="index.html">Home</a>
+                 <a href="trailers.html">Trailers</a>
+                 <a href="blog.html">Blog</a>
+                 <a href="downloads.html">Downloads</a>
+                 <a href="admin.html">Admin</a>
+             </div>
+             <div class="footer-col">
+                 <h4>Legal</h4>
+                  <a href="#" onclick="openLegal('privacy'); return false;">Privacy Policy</a>
+                  <a href="#" onclick="openLegal('terms'); return false;">Terms of Service</a>
+                  <a href="#" onclick="openLegal('contact'); return false;">Contact Us</a>
+              </div>
+             <div class="footer-col">
+                 <h4>Follow Us</h4>
+                 <div class="footer-social">
+                     <a href="#" title="Twitch">📺</a>
+                     <a href="#" title="Discord">💬</a>
+                     <a href="#" title="YouTube">▶</a>
+                 </div>
+             </div>
+         </div>
+         <div class="footer-bottom">
+             <p>&copy; 2026 WesternHub. All rights reserved.</p>
+         </div>
+     </footer>
+</body>
+</html>

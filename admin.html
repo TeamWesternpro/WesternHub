@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | WesternHub</title>
+    <link rel="icon" type="image/png" href="image/favicon.png">
+    <link rel="stylesheet" href="style.css">
+    <script>
+        function logout() {
+            sessionStorage.clear();
+            window.location.replace('./index.html');
+        }
+        // show login modal if not authenticated
+        function ensureAdminAuth() {
+            if (sessionStorage.getItem('adminLoggedIn') === 'true') return;
+            document.getElementById('adminLoginModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+    </script>
+</head>
+<body>
+    <!-- Admin login modal -->
+    <div id="adminLoginModal" class="modal">
+        <div class="legal-modal-content" style="max-width:420px;padding:2rem;">
+            <h2 style="color:var(--primary-red);margin-bottom:1rem;">Admin Login</h2>
+            <p id="adminLoginMsg" style="color:var(--primary-red);display:none;margin-bottom:0.5rem;"></p>
+            <form id="adminLoginForm">
+                <div class="form-group">
+                    <label for="adminUser">Username</label>
+                    <input type="text" id="adminUser" required>
+                </div>
+                <div class="form-group">
+                    <label for="adminPassInput">Password</label>
+                    <input type="password" id="adminPassInput" required>
+                </div>
+                <div style="display:flex;gap:10px;margin-top:1rem;">
+                    <button type="submit" class="btn">Login</button>
+                    <button type="button" class="btn" onclick="location.replace('index.html')" style="background:var(--text-gray);">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="adminApp" style="display:none;">
+    <header>
+        <div class="logo">ADMIN<span>DASHBOARD</span></div>
+        <nav class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="trailers.html">Trailers</a>
+            <a href="blog.html">Blog</a>
+            <a href="downloads.html">Downloads</a>
+            <button onclick="logout()" class="logout-btn">Logout</button>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="admin-layout">
+            <aside class="admin-sidebar">
+                <div class="sidebar-link active" onclick="switchTab('dashboardSection', this)">
+                    <span class="sidebar-icon">&#9632;</span> Dashboard
+                </div>
+                <div class="sidebar-label">Trailers</div>
+                <div class="sidebar-link" onclick="switchTab('addTrailerSection', this)">
+                    <span class="sidebar-icon">+</span> Add Trailer
+                </div>
+                <div class="sidebar-link" onclick="switchTab('manageTrailerSection', this)">
+                    <span class="sidebar-icon">&#9776;</span> Saved Trailers
+                </div>
+                
+                <div class="sidebar-label">Blogs</div>
+                <div class="sidebar-link" onclick="switchTab('addBlogSection', this)">
+                    <span class="sidebar-icon">+</span> Add Blog
+                </div>
+                <div class="sidebar-link" onclick="switchTab('manageBlogSection', this)">
+                    <span class="sidebar-icon">&#9776;</span> Saved Blogs
+                </div>
+                
+                <div class="sidebar-label">Downloads</div>
+                <div class="sidebar-link" onclick="switchTab('addDownloadSection', this)">
+                    <span class="sidebar-icon">+</span> Add Download
+                </div>
+                <div class="sidebar-link" onclick="switchTab('manageDownloadSection', this)">
+                    <span class="sidebar-icon">&#9776;</span> Saved Downloads
+                </div>
+            </aside>
+
+            <main class="admin-content">
+                <!-- Dashboard Overview -->
+                <section id="dashboardSection" class="admin-section active">
+                    <h2 style="margin-bottom: 0.5rem; color: var(--primary-red);">Dashboard Overview</h2>
+                    <p style="color: var(--text-gray); margin-bottom: 2rem;">Welcome back, Admin. Here's what's happening.</p>
+                    
+                    <div class="dashboard-stats" id="dashboardStats"></div>
+
+                    <div class="dashboard-grid">
+                        <div class="dashboard-panel">
+                            <h3 style="margin-bottom: 1rem; font-size: 0.9rem; color: var(--text-gray); text-transform: uppercase; letter-spacing: 1px;">Recent Trailers</h3>
+                            <div id="dashboardRecentTrailers"></div>
+                        </div>
+                        <div class="dashboard-panel">
+                            <h3 style="margin-bottom: 1rem; font-size: 0.9rem; color: var(--text-gray); text-transform: uppercase; letter-spacing: 1px;">Recent Blogs</h3>
+                            <div id="dashboardRecentBlogs"></div>
+                        </div>
+                        <div class="dashboard-panel">
+                            <h3 style="margin-bottom: 1rem; font-size: 0.9rem; color: var(--text-gray); text-transform: uppercase; letter-spacing: 1px;">Recent Downloads</h3>
+                            <div id="dashboardRecentDownloads"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section: Add/Edit Trailer -->
+                <section id="addTrailerSection" class="admin-section">
+                    <div class="admin-grid">
+                        <div class="form-container">
+                            <h2 id="trailerFormHeader" style="margin-bottom: 2rem; color: var(--primary-red);">Add New Trailer</h2>
+                            <form id="trailerForm">
+                                <input type="hidden" id="trailerEditIndex" value="-1">
+                                <div class="form-group">
+                                    <label for="trailerName">Trailer Name</label>
+                                    <input type="text" id="trailerName" placeholder="Enter trailer name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="trailerDesc">Trailer Description</label>
+                                    <textarea id="trailerDesc" rows="4" placeholder="Enter description" required></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="trailerPoster">Trailer Poster</label>
+                                    <input type="file" id="trailerPosterUpload" accept="image/*" style="margin-bottom: 10px;">
+                                    <input type="hidden" id="trailerPosterUrl">
+                                </div>
+                                <div class="form-group">
+                                    <label>Release Date (Trailer)</label>
+                                    <div class="date-select-group" id="trailerDateGroup">
+                                        <select id="trailerDateDay"><option value="">Day</option></select>
+                                        <select id="trailerDateMonth">
+                                            <option value="">Month</option>
+                                            <option value="01">January</option>
+                                            <option value="02">February</option>
+                                            <option value="03">March</option>
+                                            <option value="04">April</option>
+                                            <option value="05">May</option>
+                                            <option value="06">June</option>
+                                            <option value="07">July</option>
+                                            <option value="08">August</option>
+                                            <option value="09">September</option>
+                                            <option value="10">October</option>
+                                            <option value="11">November</option>
+                                            <option value="12">December</option>
+                                        </select>
+                                        <select id="trailerDateYear"><option value="">Year</option></select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Release Date (Movie or TV)</label>
+                                    <div class="date-select-group" id="movieDateGroup">
+                                        <select id="movieDateDay"><option value="">Day</option></select>
+                                        <select id="movieDateMonth">
+                                            <option value="">Month</option>
+                                            <option value="01">January</option>
+                                            <option value="02">February</option>
+                                            <option value="03">March</option>
+                                            <option value="04">April</option>
+                                            <option value="05">May</option>
+                                            <option value="06">June</option>
+                                            <option value="07">July</option>
+                                            <option value="08">August</option>
+                                            <option value="09">September</option>
+                                            <option value="10">October</option>
+                                            <option value="11">November</option>
+                                            <option value="12">December</option>
+                                        </select>
+                                        <select id="movieDateYear"><option value="">Year</option></select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="youtubeLink">YouTube Link</label>
+                                    <input type="url" id="youtubeLink" placeholder="https://youtube.com/...">
+                                </div>
+                                <div class="form-group">
+                                    <label for="trailerTag">Tag</label>
+                                    <select id="trailerTag" required onchange="toggleNetworkField()">
+                                        <option value="Movie">Movie</option>
+                                        <option value="TV">TV</option>
+                                    </select>
+                                </div>
+                                <div id="networkField" class="form-group hidden">
+                                    <label for="networkName">Network Name</label>
+                                    <input type="text" id="networkName" placeholder="e.g. Netflix">
+                                </div>
+                                <button type="submit" id="trailerSubmitBtn" class="btn">Publish Trailer</button>
+                                <button type="button" id="trailerCancelEdit" class="btn hidden" style="background: var(--text-gray); margin-top: 10px;" onclick="resetTrailerForm()">Cancel Edit</button>
+                            </form>
+                        </div>
+                        <div class="preview-container">
+                            <h2 style="margin-bottom: 2rem; color: var(--text-gray);">Card Preview</h2>
+                            <div id="trailerPreviewCard" class="trailer-card">
+                                <div class="card-img-wrapper">
+                                    <img src="https://placehold.co/400x600/141414/ff0000?text=Upload+Poster" alt="Preview" class="card-img" id="prevTrailerImg">
+                                    <div class="card-overlay">
+                                        <div class="card-tag" id="prevTrailerTag">Movie</div>
+                                        <h3 class="card-title" id="prevTrailerTitle">Trailer Title</h3>
+                                        <p class="card-desc" id="prevTrailerDesc">Description...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section: Add/Edit Blog -->
+                <section id="addBlogSection" class="admin-section">
+                    <div class="admin-grid">
+                        <div class="form-container">
+                            <h2 id="blogFormHeader" style="margin-bottom: 2rem; color: var(--primary-red);">Add New Blog</h2>
+                            <form id="blogForm">
+                                <input type="hidden" id="blogEditIndex" value="-1">
+                                <div class="form-group">
+                                    <label for="blogName">Blog Name</label>
+                                    <input type="text" id="blogName" placeholder="Enter blog title" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="blogDesc">Short Description</label>
+                                    <textarea id="blogDesc" rows="3" placeholder="Enter short summary" required></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="blogFullDesc">Full Description</label>
+                                    <textarea id="blogFullDesc" rows="6" placeholder="Enter main blog content" required></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label>Blog Content Builder</label>
+                                    <div id="blogContentBuilder" style="background: var(--bg-dark); padding: 1rem; border-radius: 10px; margin-bottom: 1rem; border: 1px dashed var(--glass-border);">
+                                        <p id="emptyContentMsg" style="color: var(--text-gray); font-size: 0.8rem; text-align: center;">No content blocks added yet.</p>
+                                    </div>
+                                    <div style="display: flex; gap: 10px;">
+                                        <button type="button" class="btn" style="padding: 0.5rem 1rem; font-size: 0.7rem;" onclick="addContentBlock('text')">+ Add Text Block</button>
+                                        <button type="button" class="btn" style="padding: 0.5rem 1rem; font-size: 0.7rem;" onclick="addContentBlock('image')">+ Add Image Block</button>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="blogThumbnail">Thumbnail Image</label>
+                                    <input type="file" id="blogPosterUpload" accept="image/*" style="margin-bottom: 10px;">
+                                    <input type="hidden" id="blogPosterUrl">
+                                </div>
+                                <div class="form-group">
+                                    <label for="blogCategory">Category</label>
+                                    <select id="blogCategory" required>
+                                        <option value="TV News">TV News</option>
+                                        <option value="Movies News">Movies News</option>
+                                        <option value="Other News">Other News</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Release Date</label>
+                                    <div class="date-select-group" id="blogDateGroup">
+                                        <select id="blogDateDay"><option value="">Day</option></select>
+                                        <select id="blogDateMonth">
+                                            <option value="">Month</option>
+                                            <option value="01">January</option>
+                                            <option value="02">February</option>
+                                            <option value="03">March</option>
+                                            <option value="04">April</option>
+                                            <option value="05">May</option>
+                                            <option value="06">June</option>
+                                            <option value="07">July</option>
+                                            <option value="08">August</option>
+                                            <option value="09">September</option>
+                                            <option value="10">October</option>
+                                            <option value="11">November</option>
+                                            <option value="12">December</option>
+                                        </select>
+                                        <select id="blogDateYear"><option value="">Year</option></select>
+                                    </div>
+                                </div>
+                                <button type="submit" id="blogSubmitBtn" class="btn">Publish Blog</button>
+                                <button type="button" id="blogCancelEdit" class="btn hidden" style="background: var(--text-gray); margin-top: 10px;" onclick="resetBlogForm()">Cancel Edit</button>
+                            </form>
+                        </div>
+                        <div class="preview-container">
+                            <h2 style="margin-bottom: 2rem; color: var(--text-gray);">Blog Preview</h2>
+                            <div id="blogPreviewCard" class="trailer-card">
+                                <div class="card-img-wrapper">
+                                    <img src="https://placehold.co/400x600/141414/ff0000?text=Upload+Image" alt="Preview" class="card-img" id="prevBlogImg">
+                                    <div class="card-overlay">
+                                        <div class="card-tag" id="prevBlogTag">TV News</div>
+                                        <h3 class="card-title" id="prevBlogTitle">Blog Title</h3>
+                                        <p class="card-desc" id="prevBlogDesc">Summary...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section: Manage Trailers -->
+                <section id="manageTrailerSection" class="admin-section">
+                    <h2 style="margin-bottom: 2rem; color: var(--primary-red);">Saved Trailers</h2>
+                    <div id="trailerManageList" class="manage-list"></div>
+                </section>
+
+                <!-- Section: Manage Blogs -->
+                <section id="manageBlogSection" class="admin-section">
+                    <h2 style="margin-bottom: 2rem; color: var(--primary-red);">Saved Blogs</h2>
+                    <div id="blogManageList" class="manage-list"></div>
+                </section>
+
+                <!-- Section: Add/Edit Download -->
+                <section id="addDownloadSection" class="admin-section">
+                    <div class="admin-grid">
+                        <div class="form-container">
+                            <h2 id="downloadFormHeader" style="margin-bottom: 2rem; color: var(--primary-red);">Add New Download</h2>
+                            <form id="downloadForm">
+                                <input type="hidden" id="downloadEditIndex" value="-1">
+                                <div class="form-group">
+                                    <label for="downloadName">Download Title</label>
+                                    <input type="text" id="downloadName" placeholder="Enter download title" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="downloadDesc">Description</label>
+                                    <textarea id="downloadDesc" rows="4" placeholder="Enter description" required></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="downloadTag">Tags</label>
+                                    <select id="downloadTag" required>
+                                        <option value="Free">Free</option>
+                                        <option value="Paid">Paid</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="downloadStatus">Status</label>
+                                    <select id="downloadStatus" required>
+                                        <option value="Available">Available</option>
+                                        <option value="Out of Stock">Out of Stock</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="downloadPoster">Poster Image</label>
+                                    <input type="file" id="downloadPosterUpload" accept="image/*" style="margin-bottom: 10px;">
+                                    <input type="hidden" id="downloadPosterUrl">
+                                </div>
+                                <div class="form-group">
+                                    <label for="downloadFile">Upload File</label>
+                                    <input type="file" id="downloadFileUpload" style="margin-bottom: 10px;">
+                                    <input type="hidden" id="downloadFileUrl">
+                                </div>
+                                <button type="submit" id="downloadSubmitBtn" class="btn">Publish Download</button>
+                                <button type="button" id="downloadCancelEdit" class="btn hidden" style="background: var(--text-gray); margin-top: 10px;" onclick="resetDownloadForm()">Cancel Edit</button>
+                            </form>
+                        </div>
+                        <div class="preview-container">
+                            <h2 style="margin-bottom: 2rem; color: var(--text-gray);">Download Preview</h2>
+                            <div id="downloadPreviewCard" class="trailer-card">
+                                <div class="card-img-wrapper">
+                                    <img src="https://placehold.co/400x600/141414/ff0000?text=Upload+Poster" alt="Preview" class="card-img" id="prevDownloadImg">
+                                    <div class="card-overlay">
+                                        <div class="card-tag" id="prevDownloadTag">Free</div>
+                                        <h3 class="card-title" id="prevDownloadTitle">Download Title</h3>
+                                        <p class="card-desc" id="prevDownloadDesc">Description...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section: Manage Downloads -->
+                <section id="manageDownloadSection" class="admin-section">
+                    <h2 style="margin-bottom: 2rem; color: var(--primary-red);">Saved Downloads</h2>
+                    <div id="downloadManageList" class="manage-list"></div>
+                </section>
+
+            </main>
+        </div>
+    </div>
+    </div> <!-- /#adminApp -->
+
+    <script src="admin.js"></script>
+    <script>
+        // Admin login form handler (client-side only)
+        document.getElementById('adminLoginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const user = document.getElementById('adminUser').value.trim();
+            const pass = document.getElementById('adminPassInput').value;
+            const msg = document.getElementById('adminLoginMsg');
+            
+            // Client-side authentication only
+            if (user === 'admin' && pass === 'admin123') {
+                sessionStorage.setItem('adminLoggedIn', 'true');
+                sessionStorage.setItem('userName', user);
+                document.getElementById('adminLoginModal').classList.remove('active');
+                document.body.style.overflow = '';
+                document.getElementById('adminApp').style.display = '';
+            } else {
+                msg.style.display = 'block';
+                msg.textContent = 'Invalid credentials';
+            }
+        });
+
+        // On page load, ensure admin app visibility or show login
+        window.addEventListener('load', function() {
+            if (sessionStorage.getItem('adminLoggedIn') === 'true') {
+                document.getElementById('adminApp').style.display = '';
+            } else {
+                ensureAdminAuth();
+            }
+        });
+    </script>
+</body>
+</html>
