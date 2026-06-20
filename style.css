@@ -311,6 +311,10 @@ header {
     header {
         padding: 0.8rem 1rem;
     }
+
+    .logo {
+        font-size: 1.5rem;
+    }
 }
 
 .logo {
@@ -379,34 +383,48 @@ header {
     }
 
     .nav-links {
-        position: fixed;
-        top: 60px;
-        right: 0;
+        position: fixed !important;
+        top: 60px !important;
+        right: 1rem !important;
+        left: auto !important;
         flex-direction: column;
         background: var(--bg-dark);
         border: 1px solid var(--glass-border);
-        border-radius: 0 0 0 20px;
+        border-radius: 15px;
         padding: 1rem;
         gap: 0.5rem;
         width: 220px;
-        max-width: 85vw;
+        max-width: calc(100vw - 2rem);
         transform: translateX(100%);
         transition: transform 0.3s ease;
         box-shadow: var(--glass-shadow);
         backdrop-filter: blur(20px);
+        margin: 0;
     }
 
     .nav-links.active {
         transform: translateX(0);
     }
 
-    .nav-links a {
-        padding: 1rem;
-        border-radius: 10px;
+    .nav-links a,
+    .nav-links .logout-btn {
+        padding: 0.8rem 1rem;
+        border-radius: 8px;
+        width: 100%;
+        text-align: center;
     }
 
-    .nav-links a:hover {
+    .nav-links a:hover,
+    .nav-links .logout-btn:hover {
         background: rgba(108, 92, 231, 0.1);
+    }
+}
+
+@media (max-width: 480px) {
+    .nav-links {
+        width: 180px;
+        max-width: calc(100vw - 1rem);
+        right: 0.5rem;
     }
 }
 
