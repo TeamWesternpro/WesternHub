@@ -11,7 +11,12 @@
 <body>
     <header>
         <div class="logo">WESTERN<span>HUB</span></div>
-        <nav class="nav-links">
+        <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <nav class="nav-links" id="navLinks">
             <a href="index.html">Home</a>
             <a href="trailers.html">Trailers</a>
             <a href="blog.html">Blog</a>
@@ -29,6 +34,19 @@
             sessionStorage.clear();
             window.location.replace('index.html');
         }
+        
+        const hamburger = document.getElementById('hamburger');
+        const navLinks = document.getElementById('navLinks');
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            navLinks.classList.toggle('active');
+        });
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                hamburger.classList.remove('active');
+                navLinks.classList.remove('active');
+            });
+        });
     </script>
 
     <div class="container">
